@@ -2,7 +2,6 @@ package concurrency
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -10,8 +9,7 @@ import (
 
 func GenNums(size int) []int {
 	if size <= 0 {
-		log.Println("size must be positive!")
-		return []int{}
+		panic("size must be positive!")
 	}
 	randSrc := rand.NewSource(time.Now().Unix())
 	data := make([]int, size)
@@ -28,7 +26,7 @@ func CreateRoutines() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		data := GenNums(100)
+		data := GenNums(10)
 		for _, v := range data {
 			fromGen <- v
 		}
