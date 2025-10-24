@@ -7,14 +7,14 @@ import (
 	"time"
 )
 
-func GenNums(size int) []int {
+func GenNums(size int, genRange int) []int {
 	if size <= 0 {
 		panic("size must be positive!")
 	}
 	randSrc := rand.NewSource(time.Now().Unix())
 	data := make([]int, size)
 	for i := 0; i < size; i++ {
-		data[i] = int(randSrc.Int63() % 100)
+		data[i] = int(randSrc.Int63() % int64(genRange))
 	}
 	return data
 }
@@ -26,7 +26,7 @@ func CreateRoutines() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		data := GenNums(10)
+		data := GenNums(10, 100)
 		for _, v := range data {
 			fromGen <- v
 		}
