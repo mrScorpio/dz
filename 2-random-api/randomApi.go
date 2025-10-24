@@ -2,6 +2,7 @@ package randomApi
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	concurrency "github.com/mrScorpio/dz/1-concurrency"
@@ -18,5 +19,5 @@ func CrWebServ() {
 		Addr:    ":8086",
 		Handler: mux,
 	}
-	panic(serv.ListenAndServe())
+	log.Fatal((serv.ListenAndServe()))
 }

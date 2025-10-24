@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	concurrency.CreateRoutines()
 	randomApi.CrWebServ()
+	concurrency.CreateRoutines()
 }
