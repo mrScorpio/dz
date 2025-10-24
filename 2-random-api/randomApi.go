@@ -8,10 +8,10 @@ import (
 )
 
 func sendRandNum(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(fmt.Sprint(concurrency.GenNums(1, 6)[0])))
+	w.Write([]byte(fmt.Sprint(1 + concurrency.GenNums(1, 6)[0])))
 }
 
-func crWebServ() {
+func CrWebServ() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/randnum", sendRandNum)
 	serv := http.Server{
