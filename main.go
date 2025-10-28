@@ -1,11 +1,11 @@
 package main
 
 import (
-	concurrency "github.com/mrScorpio/dz/1-concurrency"
-	randomApi "github.com/mrScorpio/dz/2-random-api"
+	validationApi "github.com/mrScorpio/dz/3-validation-api"
 )
 
 func main() {
-	randomApi.CrWebServ()
-	concurrency.CreateRoutines()
+	validationApi.CreateServer()
+	// randomApi.CrWebServ()
+	// concurrency.CreateRoutines()
 }
