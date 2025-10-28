@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/smtp"
+	"strings"
 
 	"github.com/jordan-wright/email"
 )
@@ -30,7 +31,7 @@ func (handler *ValHandler) Send() http.HandlerFunc {
 		e.To = []string{handler.Address}
 		e.Subject = "Verification"
 		e.HTML = []byte("<h1>http://localhost:8086/verify/{hash}</h1>")
-		err := e.Send("smtp.gmail.com:587", smtp.PlainAuth("", handler.Email, handler.Password, "smpt.gmail.com"))
+		err := e.Send("smtp.gmail.com:587", smtp.PlainAuth("", handler.Email, handler.Password, "smtp.gmail.com"))
 		if err != nil {
 			log.Println(err.Error())
 		}
@@ -39,9 +40,9 @@ func (handler *ValHandler) Send() http.HandlerFunc {
 
 func (handler *ValHandler) Verify() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		w.Header().Set("Content-Type", "text/plain")
-		if r.URL.Path == "/verify/{hash}" {
+		hash := strings.TrimPrefix(r.URL.Path, "/verify/")
+		if hash == "{hash}" {
 			w.WriteHeader(http.StatusAccepted)
 			_, err := w.Write([]byte("Your email is verified!"))
 			if err != nil {
