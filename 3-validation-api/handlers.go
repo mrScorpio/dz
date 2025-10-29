@@ -1,12 +1,14 @@
 package validationApi
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/smtp"
 	"strings"
 
 	"github.com/jordan-wright/email"
+	concurrency "github.com/mrScorpio/dz/1-concurrency"
 )
 
 type ValHandler struct {
@@ -22,19 +24,31 @@ func NewValHandler(mux *http.ServeMux, deps ValHandlerDeps) {
 		Config: deps.Config,
 	}
 	mux.HandleFunc("POST /send", handler.Send())
-	mux.HandleFunc("GET /verify/", handler.Verify())
+	mux.HandleFunc("GET /verify/{hash}", handler.Verify())
 }
 
 func (handler *ValHandler) Send() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		hashSl := concurrency.GenNums(6, 26)
+		hashR := make([]rune, len(hashSl))
+		for i, v := range hashSl {
+			hashR[i] = rune(v + 97)
+		}
+		hash := string(hashR)
 		e := email.NewEmail()
 		e.To = []string{handler.Address}
 		e.Subject = "Verification"
-		e.HTML = []byte("<h1>http://localhost:8086/verify/{hash}</h1>")
+		e.HTML = []byte(fmt.Sprintf("<h1>http://localhost:8086/verify/%s</h1>", hash))
 		err := e.Send("smtp.gmail.com:587", smtp.PlainAuth("", handler.Email, handler.Password, "smtp.gmail.com"))
 		if err != nil {
 			log.Println(err.Error())
+			return
 		}
+		hd := HashData{
+			Email: handler.Address,
+			Hash:  hash,
+		}
+		hd.SaveJson()
 	}
 }
 
@@ -42,7 +56,9 @@ func (handler *ValHandler) Verify() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		hash := strings.TrimPrefix(r.URL.Path, "/verify/")
-		if hash == "{hash}" {
+		var hd HashData
+		hd.ReadJson()
+		if hash == hd.Hash {
 			w.WriteHeader(http.StatusAccepted)
 			_, err := w.Write([]byte("Your email is verified!"))
 			if err != nil {
