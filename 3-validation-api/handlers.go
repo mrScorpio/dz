@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/smtp"
+	"os"
 	"strings"
 
 	"github.com/jordan-wright/email"
@@ -35,20 +36,34 @@ func (handler *ValHandler) Send() http.HandlerFunc {
 			hashR[i] = rune(v + 97)
 		}
 		hash := string(hashR)
-		e := email.NewEmail()
-		e.To = []string{handler.Address}
-		e.Subject = "Verification"
-		e.HTML = []byte(fmt.Sprintf("<h1>http://localhost:8086/verify/%s</h1>", hash))
-		err := e.Send("smtp.gmail.com:587", smtp.PlainAuth("", handler.Email, handler.Password, "smtp.gmail.com"))
+		buf := []byte{}
+		_, err := r.Body.Read(buf)
+		defer r.Body.Close()
+
 		if err != nil {
 			log.Println(err.Error())
+			w.WriteHeader(http.StatusNotAcceptable)
+			return
+		}
+		handler.Config.Address = string(buf)
+
+		e := email.NewEmail()
+		e.To = []string{handler.Config.Address}
+		e.Subject = "Verification"
+		e.HTML = []byte(fmt.Sprintf("<h1>http://localhost:8086/verify/%s</h1>", hash))
+		err = e.Send("smtp.gmail.com:587", smtp.PlainAuth("", handler.Config.Email, handler.Config.Password, "smtp.gmail.com"))
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		hd := HashData{
-			Email: handler.Address,
+			Email: handler.Config.Address,
 			Hash:  hash,
 		}
-		hd.SaveJson()
+		if hd.SaveJson() != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}
 }
 
@@ -57,7 +72,12 @@ func (handler *ValHandler) Verify() http.HandlerFunc {
 		w.Header().Set("Content-Type", "text/plain")
 		hash := strings.TrimPrefix(r.URL.Path, "/verify/")
 		var hd HashData
-		hd.ReadJson()
+		if hd.ReadJson() != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		if os.Remove("hashfile.json") != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		if hash == hd.Hash {
 			w.WriteHeader(http.StatusAccepted)
 			_, err := w.Write([]byte("Your email is verified!"))
