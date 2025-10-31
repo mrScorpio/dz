@@ -11,7 +11,7 @@ type HashData struct {
 }
 
 func (d *HashData) SaveJson() error {
-	file, err := os.OpenFile("hashdata.json", os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile("hashdata.json", os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		return err
 	}
@@ -21,11 +21,15 @@ func (d *HashData) SaveJson() error {
 }
 
 func (d *HashData) ReadJson() error {
-	file, err := os.OpenFile("hashdata.json", os.O_RDONLY, 0444)
+	file, err := os.OpenFile("hashdata.json", os.O_RDONLY, 0666)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+
 	json.NewDecoder(file).Decode(d)
+	file.Close()
+	if os.Remove("hashdata.json") != nil {
+		return err
+	}
 	return nil
 }
