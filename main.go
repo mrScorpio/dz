@@ -1,11 +1,12 @@
 package main
 
 import (
-	validationApi "github.com/mrScorpio/dz/3-validation-api"
+	orderapi "github.com/mrScorpio/dz/4-order-api"
 )
 
 func main() {
-	validationApi.CreateServer()
+	orderapi.CrTbl()
+	//validationApi.CreateServer()
 	// randomApi.CrWebServ()
 	// concurrency.CreateRoutines()
 }

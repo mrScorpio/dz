@@ -6,10 +6,10 @@ import (
 )
 
 func CreateServer() {
-	conf := LoadConfig()
+	conf := LoadConfigFromFile()
 	mux := http.NewServeMux()
 	NewValHandler(mux, ValHandlerDeps{
-		Config: conf,
+		VldConfig: conf,
 	})
 
 	srv := http.Server{

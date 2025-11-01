@@ -6,19 +6,19 @@ import (
 	"os"
 )
 
-type Config struct {
+type VldConfig struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Address  string `json:"address"`
 }
 
-func LoadConfig() *Config {
+func LoadConfigFromFile() *VldConfig {
 	jFile, err := os.ReadFile("cfg")
 	if err != nil {
 		log.Println(err.Error())
 	}
 
-	var confItem Config
+	var confItem VldConfig
 	err = json.Unmarshal(jFile, &confItem)
 	if err != nil {
 		log.Println(err.Error())

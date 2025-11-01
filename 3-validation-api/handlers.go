@@ -13,16 +13,16 @@ import (
 )
 
 type ValHandler struct {
-	*Config
+	*VldConfig
 }
 
 type ValHandlerDeps struct {
-	*Config
+	*VldConfig
 }
 
 func NewValHandler(mux *http.ServeMux, deps ValHandlerDeps) {
 	handler := &ValHandler{
-		Config: deps.Config,
+		VldConfig: deps.VldConfig,
 	}
 	mux.HandleFunc("POST /send", handler.Send())
 	mux.HandleFunc("GET /verify/{hash}", handler.Verify())
@@ -44,10 +44,10 @@ func (handler *ValHandler) Send() http.HandlerFunc {
 			return
 		}
 		r.Body.Close()
-		handler.Config.Address = string(buf)
+		handler.VldConfig.Address = string(buf)
 
 		hd := HashData{
-			Email: handler.Config.Address,
+			Email: handler.VldConfig.Address,
 			Hash:  hash,
 		}
 		if hd.SaveJson() != nil {
@@ -55,10 +55,10 @@ func (handler *ValHandler) Send() http.HandlerFunc {
 		}
 
 		e := email.NewEmail()
-		e.To = []string{handler.Config.Address}
+		e.To = []string{handler.VldConfig.Address}
 		e.Subject = "Verification"
 		e.HTML = []byte(fmt.Sprintf("<h1>http://localhost:8086/verify/%s</h1>", hash))
-		err = e.Send("smtp.gmail.com:587", smtp.PlainAuth("", handler.Config.Email, handler.Config.Password, "smtp.gmail.com"))
+		err = e.Send("smtp.gmail.com:587", smtp.PlainAuth("", handler.VldConfig.Email, handler.VldConfig.Password, "smtp.gmail.com"))
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
