@@ -5,7 +5,8 @@ import (
 )
 
 func main() {
-	orderapi.CrTbl()
+	orderapi.TestDb()
+	//orderapi.CrTbl()
 	//validationApi.CreateServer()
 	// randomApi.CrWebServ()
 	// concurrency.CreateRoutines()
