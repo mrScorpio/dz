@@ -14,7 +14,7 @@ func CrTbl() {
 func TestDb() {
 	conf := LoadConfig()
 	db := NewDb(conf)
-	repo := NewLinkRepository(db)
+	repo := NewProdRepository(db)
 	repo.Create(&Product{
 		Name:        "testname",
 		Description: "testdescr",

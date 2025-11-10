@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	orderapi.TestDb()
+	orderapi.ProdServ()
 	//orderapi.CrTbl()
 	//validationApi.CreateServer()
 	// randomApi.CrWebServ()
