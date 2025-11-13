@@ -1,6 +1,11 @@
 package orderapi
 
-import "net/http"
+import (
+	"net/http"
+	"os"
+
+	"github.com/sirupsen/logrus"
+)
 
 func ProdServ() {
 	conf := LoadConfig()
@@ -10,9 +15,11 @@ func ProdServ() {
 	NewProdHandler(mux, ProdHandlerDeps{
 		ProdRepo: repo,
 	})
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
 	srv := http.Server{
 		Addr:    ":8088",
-		Handler: mux,
+		Handler: MidLog(mux),
 	}
 	err := srv.ListenAndServe()
 	if err != nil {
