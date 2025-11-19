@@ -2,6 +2,7 @@ package orderapi
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -19,6 +20,14 @@ func NewAuthHandler(mux *http.ServeMux, deps AuthHandlerDeps) {
 	}
 	mux.HandleFunc("POST /auth/login", handler.Login())
 	mux.HandleFunc("POST /auth/code", handler.Check())
+}
+
+func (handler *AuthHandler) SendSMS(phone string, w http.ResponseWriter) {
+	user, err := handler.repo.GetUserByPhone(phone)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	log.Println("SMS with code: ", user.Code, " is sended to ", user.Phone)
 }
 
 func JsonResp(w http.ResponseWriter, data any, statusCode int) {
@@ -44,6 +53,7 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 		loginResp := SessionResp{
 			SessionId: ssId,
 		}
+		handler.SendSMS(loginReq.Phone, w)
 		JsonResp(w, loginResp, http.StatusOK)
 	}
 }
@@ -60,6 +70,10 @@ func (handler *AuthHandler) Check() http.HandlerFunc {
 		token, err := handler.AuthService.ChkCode(codeReq.SessionId, codeReq.Code)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		if token == "" {
+			http.Error(w, "wrong code", http.StatusUnauthorized)
 			return
 		}
 		tokenResp := TokenResp{
