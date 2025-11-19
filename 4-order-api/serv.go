@@ -10,10 +10,15 @@ import (
 func ProdServ() {
 	conf := LoadConfig()
 	db := NewDb(conf)
-	repo := NewProdRepository(db)
+	repoProd := NewProdRepository(db)
+	repoUsers := NewUserRepository(db)
 	mux := http.NewServeMux()
 	NewProdHandler(mux, ProdHandlerDeps{
-		ProdRepo: repo,
+		ProdRepo: repoProd,
+	})
+	authService := NewAuthService(repoUsers)
+	NewAuthHandler(mux, AuthHandlerDeps{
+		AuthService: authService,
 	})
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetOutput(os.Stdout)
