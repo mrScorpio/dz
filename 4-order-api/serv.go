@@ -15,6 +15,7 @@ func ProdServ() {
 	mux := http.NewServeMux()
 	NewProdHandler(mux, ProdHandlerDeps{
 		ProdRepo: repoProd,
+		UserRepo: repoUsers,
 	})
 	authService := NewAuthService(repoUsers)
 	NewAuthHandler(mux, AuthHandlerDeps{

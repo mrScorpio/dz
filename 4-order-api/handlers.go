@@ -8,21 +8,24 @@ import (
 
 type ProdHandler struct {
 	ProdRepo *ProdRepository
+	UserRepo *UserRepository
 }
 
 type ProdHandlerDeps struct {
 	ProdRepo *ProdRepository
+	UserRepo *UserRepository
 }
 
 func NewProdHandler(mux *http.ServeMux, deps ProdHandlerDeps) {
 	handler := &ProdHandler{
 		ProdRepo: deps.ProdRepo,
+		UserRepo: deps.UserRepo,
 	}
 	mux.HandleFunc("POST /product", handler.Create())
 	mux.HandleFunc("PATCH /product/{id}", handler.Update())
 	mux.HandleFunc("DELETE /product/{id}", handler.Delete())
 	mux.HandleFunc("GET /product/{id}", handler.Show())
-	mux.HandleFunc("GET /products", handler.ShowAll())
+	mux.Handle("GET /products", IsAuthed(handler.ShowAll(), handler.UserRepo))
 }
 
 func (h *ProdHandler) Create() http.HandlerFunc {

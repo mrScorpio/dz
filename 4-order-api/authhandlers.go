@@ -26,8 +26,9 @@ func (handler *AuthHandler) SendSMS(phone string, w http.ResponseWriter) {
 	user, err := handler.repo.GetUserByPhone(phone)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-	log.Println("SMS with code: ", user.Code, " is sended to ", user.Phone)
+	log.Println("SMS with code:", user.Code, "is sended to", user.Phone)
 }
 
 func JsonResp(w http.ResponseWriter, data any, statusCode int) {
