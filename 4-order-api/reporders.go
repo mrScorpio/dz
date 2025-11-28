@@ -24,7 +24,7 @@ func (repo *OrderRepository) Create(order *Order) (*Order, error) {
 
 func (repo *OrderRepository) GetById(id uint, userId uint) (*Order, error) {
 	var ord Order
-	res := repo.Db.Where("user_id=?", userId).First(&ord, id)
+	res := repo.Db.Preload("Products").Where("user_id=?", userId).First(&ord, id)
 	if res.Error != nil {
 		return nil, res.Error
 	}
@@ -33,7 +33,7 @@ func (repo *OrderRepository) GetById(id uint, userId uint) (*Order, error) {
 
 func (repo *OrderRepository) GetByUser(userId uint) ([]Order, error) {
 	var orders []Order
-	res := repo.Db.Where("user_id=?", userId).Find(&orders)
+	res := repo.Db.Preload("Products").Where("user_id=?", userId).Find(&orders)
 	if res.Error != nil {
 		return nil, res.Error
 	}
