@@ -16,3 +16,8 @@ type CodeReq struct {
 type TokenResp struct {
 	Token string `json:"token"`
 }
+
+type NewOrderReq struct {
+	Address    string `json:"address"`
+	ProductIds []uint `json:"product_ids"`
+}

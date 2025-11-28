@@ -8,7 +8,7 @@ func CrTbl() {
 	conf := LoadConfig()
 	db := NewDb(conf)
 
-	db.AutoMigrate(&Product{}, &User{})
+	db.AutoMigrate(&Product{}, &User{}, &Order{})
 }
 
 func TestDb() {

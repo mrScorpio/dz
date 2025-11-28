@@ -12,10 +12,16 @@ func ProdServ() {
 	db := NewDb(conf)
 	repoProd := NewProdRepository(db)
 	repoUsers := NewUserRepository(db)
+	repoOrders := NewOrderRepository(db)
 	mux := http.NewServeMux()
 	NewProdHandler(mux, ProdHandlerDeps{
 		ProdRepo: repoProd,
 		UserRepo: repoUsers,
+	})
+	NewOrderHandler(mux, OrderHandlerDeps{
+		ProdRepo:  repoProd,
+		UserRepo:  repoUsers,
+		OrderRepo: repoOrders,
 	})
 	authService := NewAuthService(repoUsers)
 	NewAuthHandler(mux, AuthHandlerDeps{

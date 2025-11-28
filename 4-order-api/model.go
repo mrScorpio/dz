@@ -24,10 +24,11 @@ func NewProduct(name, descr string, prub int) *Product {
 
 type User struct {
 	gorm.Model
-	Phone     string `json:"phone" validate:"required"`
-	SessionID string `json:"session_id"`
-	Secret    string `json:"secret"`
-	Code      string `json:"code"`
+	Phone     string  `json:"phone" validate:"required"`
+	SessionID string  `json:"session_id"`
+	Secret    string  `json:"secret"`
+	Code      string  `json:"code"`
+	Orders    []Order `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 func NewUser(phone string) *User {
@@ -65,4 +66,23 @@ func (u *User) GenCode() {
 		idR[i] = rune(49 + v)
 	}
 	u.Code = string(idR)
+}
+
+type Order struct {
+	gorm.Model
+	UserId   uint      `json:"user_id"`
+	Address  string    `json:"address"`
+	Products []Product `gorm:"many2many:order_products;"`
+}
+
+func NewOrder(userId uint, addr string, prodIds []uint) *Order {
+	prods := make([]Product, len(prodIds))
+	for i := range prods {
+		prods[i].ID = prodIds[i]
+	}
+	return &Order{
+		UserId:   userId,
+		Address:  addr,
+		Products: prods,
+	}
 }
