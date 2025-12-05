@@ -63,6 +63,7 @@ func (h *OrderHandler) Create() http.HandlerFunc {
 			w.Write([]byte("error: " + err.Error()))
 			return
 		}
+
 		w.Write([]byte(fmt.Sprintf("New order id=%d with %d items is created", storedOrder.ID, len(storedOrder.Products))))
 	}
 }

@@ -5,14 +5,21 @@ import (
 )
 
 func CrTbl() {
-	conf := LoadConfig()
+	conf := LoadConfig("")
+	db := NewDb(conf)
+
+	db.AutoMigrate(&Product{}, &User{}, &Order{})
+}
+
+func CrTestTbl() {
+	conf := LoadConfig("fortest.env")
 	db := NewDb(conf)
 
 	db.AutoMigrate(&Product{}, &User{}, &Order{})
 }
 
 func TestDb() {
-	conf := LoadConfig()
+	conf := LoadConfig("")
 	db := NewDb(conf)
 	repo := NewProdRepository(db)
 	repo.Create(&Product{

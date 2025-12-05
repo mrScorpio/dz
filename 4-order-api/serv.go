@@ -7,8 +7,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func ProdServ() {
-	conf := LoadConfig()
+const (
+	StatusWork string = "work"
+	StatusTest string = "test"
+)
+
+func ProdServ(status string) http.Handler {
+	var conf *Config
+	if status == StatusWork {
+		conf = LoadConfig("")
+	}
+	if status == StatusTest {
+		conf = LoadConfig("../fortest.env")
+	}
 	db := NewDb(conf)
 	repoProd := NewProdRepository(db)
 	repoUsers := NewUserRepository(db)
@@ -29,12 +40,5 @@ func ProdServ() {
 	})
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetOutput(os.Stdout)
-	srv := http.Server{
-		Addr:    ":8088",
-		Handler: MidLog(mux),
-	}
-	err := srv.ListenAndServe()
-	if err != nil {
-		panic(err)
-	}
+	return MidLog(mux)
 }
