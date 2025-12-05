@@ -1,0 +1,28 @@
+package orderapi
+
+import (
+	"github.com/golang-jwt/jwt/v5"
+)
+
+type JWT struct {
+	Secret string
+}
+
+func NewJWT(secret string) *JWT {
+	return &JWT{
+		Secret: secret,
+	}
+}
+
+func (j *JWT) Create(phone string) (string, error) {
+	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"phone": phone,
+	})
+
+	s, err := tkn.SignedString([]byte(j.Secret))
+	if err != nil {
+		return "", err
+	}
+
+	return s, nil
+}
